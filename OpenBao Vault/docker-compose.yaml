@@ -1,0 +1,33 @@
+services:
+  openbao:
+    image: quay.io/openbao/openbao:2.7.2
+    container_name: openbao
+    hostname: openbao
+    restart: unless-stopped
+    command: server -config=/openbao/config/openbao.hcl
+    ports:
+      - "8200:8200"
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - ./config:/openbao/config:ro
+      - ./data:/openbao/data
+      - ./logs:/openbao/logs
+
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - --spider
+        - -q
+        - "http://127.0.0.1:8200/v1/sys/health?standbyok=true&sealedcode=200&uninitcode=200"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+    networks:
+      - microcube-net
+networks:
+  microcube-net:
+    external: true
