@@ -1,0 +1,14 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4.2
+    container_name: keycloak
+    env_file:
+      - .env
+    command: ["start-dev"]
+    ports:
+      - "9080:8080"
+    volumes:
+      - ./drivers/ojdbc11.jar:/opt/keycloak/providers/ojdbc11.jar
+      - ./themes:/opt/keycloak/themes
+      - ./providers:/opt/keycloak/providers
+    restart: always

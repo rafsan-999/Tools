@@ -1,0 +1,51 @@
+services:
+  minio:
+    image: 192.168.10.110:8082/minio/minio:RELEASE.2025-04-22T22-12-26Z
+    container_name: minio
+    command: server /data --address ":19000" --console-address ":19001"
+    ports:
+      - "19000:19000"
+      - "19001:19001"
+    env_file:
+      - minio.env
+    volumes:
+      - /opt/minio/data:/data
+      - /opt/minio/config:/root/.minio
+    restart: unless-stopped
+    networks:
+      - microcube-net
+networks:
+  microcube-net:
+    external: true
+
+----------------------------
+
+services:
+  minio:
+    image: 192.168.10.110:8082/minio/minio:RELEASE.2025-04-22T22-12-26Z
+    container_name: minio
+    command: server /data --address ":9000" --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    env_file:
+      - minio.env
+    volumes:
+      - /opt/minio/data:/data
+      - /opt/minio/config:/root/.minio
+
+    restart: unless-stopped
+    init: true
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://10.101.104.178:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+    networks:
+      - microcube-net
+networks:
+  microcube-net:
+    external: true
