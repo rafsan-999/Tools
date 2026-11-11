@@ -108,7 +108,7 @@ docker compose logs -f vault
 Run this **once**, on a fresh Vault with empty `data/`:
 
 ```bash
-docker compose exec vault vault operator init -key-shares=5 -key-threshold=3
+docker compose exec vault vault operator init -key-shares=3 -key-threshold=3
 ```
 
 This generates 5 unseal keys (any 3 of which can unseal Vault) and the initial root token.
