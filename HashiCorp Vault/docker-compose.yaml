@@ -1,0 +1,36 @@
+services:
+  vault:
+    image: hashicorp/vault:2.2   # pin a specific version; check releases for the latest
+    container_name: vault
+    restart: unless-stopped
+    command: ["vault", "server", "-config=/vault/config/vault.hcl"]
+    ports:
+      - "127.0.0.1:8200:8200"     # localhost only; change to a private IP if needed
+    environment:
+      VAULT_ADDR: "http://127.0.0.1:8200"
+      VAULT_API_ADDR: "http://127.0.0.1:8200"
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - ./config:/vault/config:ro
+      - ./data:/vault/data
+      - ./logs:/vault/logs
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8200/v1/sys/health?standbyok=true&sealedcode=200&uninitcode=200"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    networks:
+      - microcube-net
+networks:
+  microcube-net:
+    external: true
